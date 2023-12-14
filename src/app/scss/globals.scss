@@ -2,7 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "./color";
+
 * {
     padding: 0;
     margin: 0;
+}
+
+body {
+    height: 100vh;
+    color: $black;
 }
