@@ -18,6 +18,7 @@ module.exports = {
     env: {
         X_API_KEY: process.env.X_API_KEY,
     },
+    reactStrictMode: false,
     sassOptions: {
         includePaths: [path.join(__dirname, "styles")],
     },
