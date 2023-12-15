@@ -207,8 +207,6 @@ const Home = () => {
                 return response.text();
             })
             .then((data) => {
-                console.log("Respuesta:", data);
-
                 return sendTx(reference);
             })
             .catch((error) => {
