@@ -6,6 +6,7 @@ import {
     IGroupedProducts,
 } from "./interfaces/productListInterface";
 import { serviceType } from "./enum/serviceTypeEnum";
+const CryptoJS = require("crypto-js");
 
 const Home = () => {
     const [loading, setLoading] = useState(true);
@@ -15,6 +16,7 @@ const Home = () => {
     const [products, setProducts] = useState<IProductList[]>([]);
     const [productsList, setProductsList] = useState<IProductList[]>([]);
     const [selectedProduct, setSelectedProduct] = useState<IProductList>();
+    const [token, setToken] = useState<string>("");
 
     useEffect(() => {
         setLoading(true);
@@ -34,8 +36,7 @@ const Home = () => {
                 return response.json();
             })
             .then((data) => {
-                sessionStorage.setItem("authTokenTest", data.token);
-
+                setToken(data.token);
                 return fetch("/api/getProductsList", {
                     headers: {
                         "X-API-Key": `${process.env.X_API_KEY}`,
@@ -118,6 +119,141 @@ const Home = () => {
 
     const handleSelectedProduct = (product: IProductList) => {
         setSelectedProduct(product);
+        confirmTx(product);
+    };
+
+    const verifyReference = (product: IProductList) => {
+        const dataToSend = {
+            idProducto: parseInt(product.idProduct),
+            idServicio: parseInt(product.idService),
+            referencia: "7226306169",
+        };
+        const key = CryptoJS.enc.Base64.parse(process.env.SECRET_KEY);
+        const initializationVector = CryptoJS.enc.Base64.parse(process.env.IV);
+        const jsonData = JSON.stringify(dataToSend);
+        const encryptedData = CryptoJS.AES.encrypt(jsonData, key, {
+            iv: initializationVector,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7,
+        });
+        const encryptedPayload = encryptedData.toString();
+        let urlEncoded = new URLSearchParams();
+        urlEncoded.append("random", "random_string");
+        urlEncoded.append("signed", encryptedPayload);
+
+        fetch("/api/verifyReference", {
+            method: "POST",
+            headers: {
+                "X-API-Key": `${process.env.X_API_KEY}`,
+                Authorization: `Bearer ${token}`,
+            },
+            body: urlEncoded,
+            redirect: "follow",
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(
+                        `Error en la solicitud: ${response.status}`
+                    );
+                }
+                return response.text();
+            })
+            .then((data) => {
+                console.log("Respuesta:", data);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+    };
+
+    const sendTx = (product: IProductList) => {
+        const dataToSend = {
+            idProducto: parseInt(product.idProduct),
+            idServicio: parseInt(product.idService),
+            referencia: "7226306169",
+            montoPago: parseFloat(product.price),
+        };
+        const key = CryptoJS.enc.Base64.parse(process.env.SECRET_KEY);
+        const initializationVector = CryptoJS.enc.Base64.parse(process.env.IV);
+        const jsonData = JSON.stringify(dataToSend);
+        const encryptedData = CryptoJS.AES.encrypt(jsonData, key, {
+            iv: initializationVector,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7,
+        });
+        const encryptedPayload = encryptedData.toString();
+        let urlEncoded = new URLSearchParams();
+        urlEncoded.append("random", "random_string");
+        urlEncoded.append("signed", encryptedPayload);
+
+        fetch("/api/sendTx", {
+            method: "POST",
+            headers: {
+                "X-API-Key": `${process.env.X_API_KEY}`,
+                Authorization: `Bearer ${token}`,
+            },
+            body: urlEncoded,
+            redirect: "follow",
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(
+                        `Error en la solicitud: ${response.status}`
+                    );
+                }
+                return response.text();
+            })
+            .then((data) => {
+                console.log("Respuesta:", data);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+    };
+
+    const confirmTx = (product: IProductList) => {
+        const dataToSend = {
+            idProducto: parseInt(product.idProduct),
+            idServicio: parseInt(product.idService),
+            referencia: "7226306169",
+            montoPago: parseFloat(product.price),
+        };
+        const key = CryptoJS.enc.Base64.parse(process.env.SECRET_KEY);
+        const initializationVector = CryptoJS.enc.Base64.parse(process.env.IV);
+        const jsonData = JSON.stringify(dataToSend);
+        const encryptedData = CryptoJS.AES.encrypt(jsonData, key, {
+            iv: initializationVector,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7,
+        });
+        const encryptedPayload = encryptedData.toString();
+        let urlEncoded = new URLSearchParams();
+        urlEncoded.append("random", "random_string");
+        urlEncoded.append("signed", encryptedPayload);
+
+        fetch("/api/confirmTx", {
+            method: "POST",
+            headers: {
+                "X-API-Key": `${process.env.X_API_KEY}`,
+                Authorization: `Bearer ${token}`,
+            },
+            body: urlEncoded,
+            redirect: "follow",
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(
+                        `Error en la solicitud: ${response.status}`
+                    );
+                }
+                return response.text();
+            })
+            .then((data) => {
+                console.log("Respuesta:", data);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
     };
 
     console.log("selectedProduct ", selectedProduct);

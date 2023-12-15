@@ -13,10 +13,24 @@ module.exports = {
                 source: "/api/getProductsList",
                 destination: `${process.env.SERVER}/service/preprod/getProductList.do`,
             },
+            {
+                source: "/api/verifyReference",
+                destination: `${process.env.SERVER}/service/preprod/verifyReference.do`,
+            },
+            {
+                source: "/api/sendTx",
+                destination: `${process.env.SERVER}/service/preprod/sendTx.do`,
+            },
+            {
+                source: "/api/confirmTx",
+                destination: `${process.env.SERVER}/service/preprod/confirmTx.do`,
+            },
         ];
     },
     env: {
         X_API_KEY: process.env.X_API_KEY,
+        SECRET_KEY: process.env.SECRET_KEY,
+        IV: process.env.IV,
     },
     reactStrictMode: false,
     sassOptions: {
